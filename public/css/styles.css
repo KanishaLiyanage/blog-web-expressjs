@@ -33,3 +33,26 @@
 	font-size: 12px;
   color: #fff;
 }
+
+.pageTitle{
+    margin-bottom: 50px;
+}
+
+.postContainer{
+    margin-top: 10px;
+}
+
+.homeTitle{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 50px;
+}
+
+.homeTitle p{
+    font-size: xx-large;
+    font-weight: bold;
+}
+
+.link{
+    text-decoration: none;
+}

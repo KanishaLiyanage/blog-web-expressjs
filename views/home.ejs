@@ -9,7 +9,20 @@
     <title>Home</title>
 </head>
 <body>
-    
+    <div class="homeTitle">
+    <p>Home</p>
+    <a class="link" href="/compose">Compose</a>
+    </div>
+
+    <div class="postContainer">
+    <% postsArray.forEach(function(post){ %>
+
+        <h4> <%= post.title; %> </h4>
+        <p> <%= post.content; %> </p>
+
+    <% }); %>
+    </div>
+
 </body>
 </html>
 
