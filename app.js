@@ -26,7 +26,6 @@ app.get("/", function (req, res) {
         if (err) {
             console.log(err);
         } else {
-            console.log(posts);
             res.render("home",
                 {
                     postsArray: posts
@@ -95,29 +94,38 @@ app.post("/compose", function (req, res) {
 
 });
 
-app.get("/posts/:postName", function (req, res) {
+app.get("/posts/postTitle=:postTitle&postID=:postID", function (req, res) {
 
-    const requestedTitle = _.lowerCase(req.params.postName);
+    const requestedID = _.lowerCase(req.params.postID);
 
-    posts.forEach(function (post) {
+    Post.find(function(err, posts){
 
-        const storedTitle = _.lowerCase(post.title);
+        if(err){
+            console.log(err);
+        }else{
 
-        if (storedTitle === requestedTitle) {
-            // console.log("Match Found!");
-            res.render("post",
+            posts.forEach(function (post) {
 
-                {
-
-                    postTitle: post.title,
-                    postContent: post.content
-
+                const storedID = _.lowerCase(post._id);
+        
+                if (storedID === requestedID) {
+                    res.render("post",
+        
+                        {
+        
+                            postTitle: post.title,
+                            postContent: post.content
+        
+                        }
+        
+                    );
+        
+                } else {
+                    //console.log("Not Found!");
                 }
+        
+            });
 
-            );
-
-        } else {
-            // console.log("Not Found!");
         }
 
     });
