@@ -19,6 +19,68 @@ app.use(express.static("public"));
 
 app.get("/", function (req, res) {
 
+    console.log("Serving sign in page...");
+
+    res.render("signIn");
+
+});
+
+app.post("/accountCreate", function(req, res){
+
+    let postName = req.body.name;
+    let postEmail = req.body.email;
+    let postPassword = req.body.password;
+    let postDate = date.getDate();
+
+    const user = new User({
+
+        name: postName,
+        email: postEmail,
+        password: postPassword,
+        dateCreated: postDate
+
+    });
+
+    user.save();
+    res.redirect("/home");
+
+});
+
+app.post("/accountValidate", function(req, res){
+
+    const requestedEmail = req.body.email;
+    const requestedPassword = req.body.password;
+
+    User.find(function(err, users){
+
+        if(err){
+            console.log(err);
+        }else{
+
+            users.forEach(function(user) {
+
+                const storedEmail = user.email;
+                const storedPassword = user.password;
+        
+                if (storedEmail == requestedEmail && storedPassword === requestedPassword) {
+                    res.redirect("/home");
+        
+                } else {
+                    res.redirect("/");
+                }
+        
+            });
+
+        }
+
+    });
+    console.log(requestedEmail);
+    console.log(requestedPassword);
+
+});
+
+app.get("/home", function (req, res) {
+
     console.log("Serving home page...");
 
     Post.find(function (err, posts) {
@@ -34,6 +96,14 @@ app.get("/", function (req, res) {
         }
 
     });
+
+});
+
+app.get("/signup", function (req, res) {
+
+    console.log("Serving sign up page...");
+
+    res.render("signUp");
 
 });
 
@@ -69,6 +139,18 @@ app.get("/compose", function (req, res) {
 
 });
 
+app.get("/profile", function (req, res) {
+
+    console.log("Serving profile page...");
+
+    res.render("profile",
+        {
+
+        }
+    );
+
+});
+
 app.post("/compose", function (req, res) {
 
     let postTitle = req.body.titleGiven;
@@ -90,7 +172,7 @@ app.post("/compose", function (req, res) {
     // }
     // posts.push(post);
     // console.log(posts);
-    res.redirect("/");
+    res.redirect("/home");
 
 });
 
