@@ -2,6 +2,11 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const _ = require("lodash");
 
+require(__dirname + "/db/mongooseConnect");
+const Post = require(__dirname + "/db/post");
+const User = require(__dirname + "/db/user");
+const date = require(__dirname + "/utils/date");
+
 const port = process.env.PORT || 3000;
 
 const app = express();
@@ -10,17 +15,26 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 
-let posts = [];
+// let posts = [];
 
 app.get("/", function (req, res) {
 
     console.log("Serving home page...");
 
-    res.render("home",
-        {
-            postsArray: posts,
+    Post.find(function (err, posts) {
+
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(posts);
+            res.render("home",
+                {
+                    postsArray: posts
+                }
+            );
         }
-    );
+
+    });
 
 });
 
@@ -30,7 +44,7 @@ app.get("/about", function (req, res) {
 
     res.render("about",
         {
-            
+
         }
     );
 
@@ -42,7 +56,7 @@ app.get("/contact", function (req, res) {
 
     res.render("contact",
         {
-            
+
         }
     );
 
@@ -56,33 +70,40 @@ app.get("/compose", function (req, res) {
 
 });
 
-app.post("/compose", function(req, res){
+app.post("/compose", function (req, res) {
 
     let postTitle = req.body.titleGiven;
     let postContent = req.body.contentGiven;
+    let postDate = date.getDate();
 
-    const post = {
+    const post = new Post({
 
         title: postTitle,
-        content: postContent
+        content: postContent,
+        dateAdded: postDate
 
-    }
+    });
 
-    posts.push(post);
+    post.save();
+    // const post = {
+    //     title: postTitle,
+    //     content: postContent
+    // }
+    // posts.push(post);
     // console.log(posts);
     res.redirect("/");
 
 });
 
-app.get("/posts/:postName", function(req, res){
+app.get("/posts/:postName", function (req, res) {
 
     const requestedTitle = _.lowerCase(req.params.postName);
 
-    posts.forEach(function(post){
+    posts.forEach(function (post) {
 
         const storedTitle = _.lowerCase(post.title);
 
-        if(storedTitle === requestedTitle){
+        if (storedTitle === requestedTitle) {
             // console.log("Match Found!");
             res.render("post",
 
@@ -95,13 +116,14 @@ app.get("/posts/:postName", function(req, res){
 
             );
 
-        }else{
+        } else {
             // console.log("Not Found!");
         }
 
     });
 
 });
+
 
 
 app.listen(port, function () {
