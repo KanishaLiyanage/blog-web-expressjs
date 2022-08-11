@@ -16,7 +16,20 @@
             <a class="link" href="/compose">Compose a Post</a>
         </div>
 
+        <div class="postContainer">
+            <% allPosts.forEach(function(post){ %>
 
+                <h4>
+                    <%= post.title %>
+                </h4>
+                <p>
+                    <%= post.content.substring(0, 100) + " ..." %>
+                </p>
+
+                <a href="posts/postTitle=<%= post.title %>&postID=<%= post._id %>">Read More</a>
+
+                <% }); %>
+        </div>
         
     </body>
 
