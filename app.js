@@ -48,12 +48,12 @@ app.get("/home", function(req, res){
         res.render("home");
         console.log("Serving home page...");
     }else{
-        res.redirect("/signup");
+        res.redirect("/");
     }
 
 });
 
-app.post("/accountCreate", function(req, res){
+app.post("/register", function(req, res){
 
     User.register(
         {username: req.body.username, email: req.body.email, dateCreated: date.getDate()},
@@ -61,7 +61,7 @@ app.post("/accountCreate", function(req, res){
         function(err, user){
             if(err){
                 console.log(err);
-                res.redirect("/signup");
+                res.redirect("/");
             }else{
                 passport.authenticate("local")(req, res, function(){
                     res.redirect("/home");
@@ -70,14 +70,12 @@ app.post("/accountCreate", function(req, res){
         });
 
 });
-
+ 
 app.post("/login", function(req, res){
 
     const user = new User({
-
-        email: req.body.email,
+        username: req.body.username,
         password: req.body.password
-
     });
 
     req.login(user, function(err){
@@ -85,13 +83,9 @@ app.post("/login", function(req, res){
         if(err){
             console.log(err);
         }else{
-
             passport.authenticate("local")(req, res, function(){
-
                 res.redirect("/home");
-
             });
-
         }
 
     });
@@ -122,7 +116,7 @@ app.get("/about", function (req, res) {
     if(req.isAuthenticated()){
         res.render("about");
     }else{
-        res.redirect("/signup");
+        res.redirect("/");
     }
 
 });
@@ -132,7 +126,7 @@ app.get("/contact", function (req, res) {
     if(req.isAuthenticated()){
         res.render("contact");
     }else{
-        res.redirect("/signup");
+        res.redirect("/");
     }
 
 });
@@ -142,7 +136,7 @@ app.get("/compose", function (req, res) {
     if(req.isAuthenticated()){
         res.render("compose");
     }else{
-        res.redirect("/signup");
+        res.redirect("/");
     }
 });
 
@@ -151,7 +145,7 @@ app.get("/profile", function (req, res) {
     if(req.isAuthenticated()){
         res.render("profile");
     }else{
-        res.redirect("/signup");
+        res.redirect("/");
     }
 
 });
