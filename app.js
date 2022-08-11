@@ -42,17 +42,6 @@ app.get("/", function (req, res) {
 
 });
 
-app.get("/home", function(req, res){
-
-    if(req.isAuthenticated()){
-        res.render("home");
-        console.log("Serving home page...");
-    }else{
-        res.redirect("/");
-    }
-
-});
-
 app.post("/register", function(req, res){
 
     User.register(
@@ -92,14 +81,14 @@ app.post("/login", function(req, res){
 
 });
 
-app.get("/logout", function(req, res){
+app.get("/home", function(req, res){
 
-    req.logout(function(err){
-        if(err){
-            return next(err);
-        }
+    if(req.isAuthenticated()){
+        res.render("home");
+        console.log("Serving home page...");
+    }else{
         res.redirect("/");
-    });
+    }
 
 });
 
@@ -209,6 +198,18 @@ app.get("/posts/postTitle=:postTitle&postID=:postID", function (req, res) {
 
         }
 
+    });
+
+});
+
+app.get("/logout", function(req, res){
+
+    req.logout(function(err){
+        if(err){
+            return next(err);
+        }
+        res.redirect("/");
+        console.log("User successfully logged out.");
     });
 
 });
