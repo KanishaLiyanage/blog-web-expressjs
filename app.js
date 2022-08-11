@@ -1,10 +1,11 @@
+require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const _ = require("lodash");
+const session = require("express-session");
+const passport = require("passport");
 
-require(__dirname + "/db/mongooseConnect");
 const Post = require(__dirname + "/db/post");
-const User = require(__dirname + "/db/user");
 const date = require(__dirname + "/utils/date");
 
 const port = process.env.PORT || 3000;
@@ -14,6 +15,22 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
+app.use(session({
+    secret: process.env.SECRET,
+    resave: false,
+    saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+require(__dirname + "/db/mongooseConnect");
+
+const User = require(__dirname + "/db/user");
+
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 // let posts = [];
 
@@ -25,76 +42,69 @@ app.get("/", function (req, res) {
 
 });
 
-app.post("/accountCreate", function(req, res){
+app.get("/home", function(req, res){
 
-    let postName = req.body.name;
-    let postEmail = req.body.email;
-    let postPassword = req.body.password;
-    let postDate = date.getDate();
-
-    const user = new User({
-
-        name: postName,
-        email: postEmail,
-        password: postPassword,
-        dateCreated: postDate
-
-    });
-
-    user.save();
-    res.redirect("/home");
+    if(req.isAuthenticated()){
+        res.render("home");
+        console.log("Serving home page...");
+    }else{
+        res.redirect("/signup");
+    }
 
 });
 
-app.post("/accountValidate", function(req, res){
+app.post("/accountCreate", function(req, res){
 
-    const requestedEmail = req.body.email;
-    const requestedPassword = req.body.password;
+    User.register(
+        {username: req.body.username, email: req.body.email, dateCreated: date.getDate()},
+        req.body.password,
+        function(err, user){
+            if(err){
+                console.log(err);
+                res.redirect("/signup");
+            }else{
+                passport.authenticate("local")(req, res, function(){
+                    res.redirect("/home");
+                });
+            }
+        });
 
-    User.find(function(err, users){
+});
+
+app.post("/login", function(req, res){
+
+    const user = new User({
+
+        email: req.body.email,
+        password: req.body.password
+
+    });
+
+    req.login(user, function(err){
 
         if(err){
             console.log(err);
         }else{
 
-            users.forEach(function(user) {
+            passport.authenticate("local")(req, res, function(){
 
-                const storedEmail = user.email;
-                const storedPassword = user.password;
-        
-                if (storedEmail == requestedEmail && storedPassword === requestedPassword) {
-                    res.redirect("/home");
-        
-                } else {
-                    res.redirect("/");
-                }
-        
+                res.redirect("/home");
+
             });
 
         }
 
     });
-    console.log(requestedEmail);
-    console.log(requestedPassword);
 
 });
 
-app.get("/home", function (req, res) {
+app.get("/logout", function(req, res){
 
-    console.log("Serving home page...");
-
-    Post.find(function (err, posts) {
-
-        if (err) {
-            console.log(err);
-        } else {
-            res.render("home",
-                {
-                    postsArray: posts
-                }
-            );
+    req.logout(function(err){
+        if(err){
+            return next(err);
         }
-
+        res.redirect("/");
     });
 
 });
@@ -109,45 +119,40 @@ app.get("/signup", function (req, res) {
 
 app.get("/about", function (req, res) {
 
-    console.log("Serving about us page...");
-
-    res.render("about",
-        {
-
-        }
-    );
+    if(req.isAuthenticated()){
+        res.render("about");
+    }else{
+        res.redirect("/signup");
+    }
 
 });
 
 app.get("/contact", function (req, res) {
 
-    console.log("Serving contact us page...");
-
-    res.render("contact",
-        {
-
-        }
-    );
+    if(req.isAuthenticated()){
+        res.render("contact");
+    }else{
+        res.redirect("/signup");
+    }
 
 });
 
 app.get("/compose", function (req, res) {
 
-    console.log("Serving compose us page...");
-
-    res.render("compose");
-
+    if(req.isAuthenticated()){
+        res.render("compose");
+    }else{
+        res.redirect("/signup");
+    }
 });
 
 app.get("/profile", function (req, res) {
 
-    console.log("Serving profile page...");
-
-    res.render("profile",
-        {
-
-        }
-    );
+    if(req.isAuthenticated()){
+        res.render("profile");
+    }else{
+        res.redirect("/signup");
+    }
 
 });
 
