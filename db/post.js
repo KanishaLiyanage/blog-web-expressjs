@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
-const passportLocalMongoose = require("passport-local-mongoose");
 
 const postSchema = new mongoose.Schema({
 
     title: String,
     content: String,
-    dateAdded: String
+    dateAdded: String,
+    userId: String
 
 });
 

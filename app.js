@@ -4,8 +4,6 @@ const bodyParser = require("body-parser");
 const _ = require("lodash");
 const session = require("express-session");
 const passport = require("passport");
-const passportLocalMongoose = require("passport-local-mongoose");
-const mongoose = require("mongoose");
 
 const date = require(__dirname + "/utils/date");
 const port = process.env.PORT || 3000;
@@ -25,33 +23,13 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 require(__dirname + "/db/mongooseConnect");
-// const Post = require(__dirname + "/db/post");
-// const User = require(__dirname + "/db/user");
-
-const postSchema = new mongoose.Schema({
-    title: String,
-    content: String,
-    userId: String
-});
-
-const Post = mongoose.model('Post', postSchema);
-
-const userSchema = new mongoose.Schema({
-    username: String,
-    email: String,
-    password: String,
-    dateCreated: String
-});
-
-userSchema.plugin(passportLocalMongoose);
-const User = mongoose.model('User', userSchema);
-
+const Post = require(__dirname + "/db/post");
+const User = require(__dirname + "/db/user");
 
 passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// let posts = [];
 
 app.get("/", function (req, res) {
 
@@ -195,6 +173,7 @@ app.post("/compose", function (req, res) {
                 const newPost = Post({
                     title: postTitle,
                     content: postContent,
+                    dateAdded: date.getDate(),
                     userId: foundUser._id
                 });
                 console.log(foundUser._id);
@@ -211,30 +190,6 @@ app.post("/compose", function (req, res) {
 
 });
 
-// app.post("/compose", function (req, res) {
-
-//     let postTitle = req.body.titleGiven;
-//     let postContent = req.body.contentGiven;
-//     let postDate = date.getDate();
-
-//     const post = new Post({
-
-//         title: postTitle,
-//         content: postContent,
-//         dateAdded: postDate
-
-//     });
-
-//     post.save();
-//     // const post = {
-//     //     title: postTitle,
-//     //     content: postContent
-//     // }
-//     // posts.push(post);
-//     // console.log(posts);
-//     res.redirect("/home");
-
-// });
 
 app.get("/posts/postTitle=:postTitle&postID=:postID", function (req, res) {
 
