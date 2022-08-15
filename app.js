@@ -190,7 +190,6 @@ app.post("/compose", function (req, res) {
 
 });
 
-
 app.get("/posts/postTitle=:postTitle&postID=:postID", function (req, res) {
 
     const requestedID = _.lowerCase(req.params.postID);
